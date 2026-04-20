@@ -13,11 +13,13 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     
     if (error) {
-      // LOG IT LOCALLY (Safety first)
-      console.error('CRITICAL AUTH ERROR:', error.message);
-      
-      // REDIRECT WITH A TINY CODE (To prevent 431 loops)
-      return NextResponse.redirect(`${origin}/?error=auth_fail`);
+       // LOG THE FULL ERROR TO THE TERMINAL
+       console.error('--- CRITICAL AUTH ERROR ---');
+       console.error('Message:', error.message);
+       console.error('Status:', (error as any).status);
+       console.error('---------------------------');
+       
+       return NextResponse.redirect(`${origin}/?error=auth_fail`);
     }
 
     if (!data.session) {
