@@ -1,36 +1,106 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧠 Sourcely AI — The Neural Brain of Your Team
 
-## Getting Started
+> **"Converting scattered company knowledge into an intelligent, searchable AI Wiki & Chat Assistant."**
 
-First, run the development server:
+![Sourcely Banner](https://raw.githubusercontent.com/tanishbhandari11t/Sourcely/main/public/logo.svg)
 
+---
+
+## 🧾 Project Overview
+
+**Sourcely** is an AI-powered developer knowledge base generator. It solves the "Scattered Knowledge" problem where company info is lost across Slack threads, PDFs, GitHub Readmes, and meeting notes. 
+
+New developers struggle to find answers → Sourcely ingests that data and automatically generates a **Living AI Wiki** and a grounded **Chat Assistant**.
+
+---
+
+## 🔥 Core Features
+
+### 1️⃣ Workspace System (Multi-Tenant SaaS)
+*   **Pure Ownership**: Each workspace has a single Owner and verified Members.
+*   **Join Flow**: Secure Request-to-Join system with real-time Owner notifications.
+*   **Isolated Intelligence**: Data from Workspace A never leaks to Workspace B.
+
+### 2️⃣ Intelligence Ingestion (The Brain)
+*   **Local Assets**: Upload PDFs, TXT, and Markdown files directly.
+*   **Platform Sync**: Automatically fetch and analyze content from **Slack, GitHub, and Jira** links.
+*   **Brain Explorer**: Transparently view the raw text chunks extracted from your sources.
+
+### 3️⃣ AI RAG Engine (Retrieval-Augmented Generation)
+*   **Vector Memory**: Powered by `pgvector` in Supabase.
+*   **Zero-Hallucination**: Answers are strictly grounded in your workspace data.
+*   **Llama-3 70B**: Lightning-fast intelligent responses via Groq.
+
+### 4️⃣ Neural Wiki & Chat
+*   **Auto-Wiki**: AI automatically clusters ingested data into structured documentation pages.
+*   **Oracle Chat**: Ask anything about your tech stack and get "Sources Used" citations.
+
+---
+
+## 🤖 How the RAG Engine Works
+
+Sourcely follows a high-fidelity intelligence pipeline:
+
+1.  **Ingest**: Raw data is fetched from local files or external links.
+2.  **Chop**: Text is broken into 500-token "Knowledge Chunks."
+3.  **Embed**: Chunks are converted into multi-dimensional vectors using Google Gemini.
+4.  **Store**: Vectors are saved in the Supabase PostgreSQL database.
+5.  **Retrieve**: User questions trigger a "Similarity Search" to find relevant chunks.
+6.  **Synthesize**: The LLM (Llama-3) generates an answer based *only* on retrieved data.
+
+---
+
+## 🧱 Tech Stack
+
+*   **Frontend**: Next.js 14 (App Router), TailwindCSS, Shadcn/UI, Lucide Icons.
+*   **Backend**: Supabase (Auth, DB, Storage, pgvector).
+*   **AI Models**: Groq (Llama-3 70B) for Chat, Google Gemini for Embeddings.
+*   **Design**: Immersive Dark Workspace aesthetic.
+
+---
+
+## 🎨 Design System
+
+| Element | Hex Code |
+| :--- | :--- |
+| **Background** | `#0B0F14` |
+| **Surface** | `#111827` |
+| **Primary** | `#6366F1` |
+| **Accent** | `#22C55E` |
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the repo
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/tanishbhandari11t/Sourcely.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Setup Environment Variables
+Create a `.env.local` file:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
+GROQ_API_KEY=your_key
+GEMINI_API_KEY=your_key
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Run Locally
+```bash
+npm run dev
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 👥 Contributors
+Created with ❤️ by **Tanish Bhandari**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> *"Sourcely becomes the brain of your company."*
