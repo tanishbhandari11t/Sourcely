@@ -9,10 +9,19 @@ export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
+    // 1. Detect OAuth Code in the WRONG URL (Home instead of Callback)
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get("code");
+    
+    if (code) {
+      // FORCE REDIRECT to the correct handling page to avoid 431 loops
+      window.location.href = `/auth/callback?code=${code}`;
+      return;
+    }
+
     const timer = setTimeout(() => {
       setShowSplash(false);
     }, 3000); // 3 seconds
-
 
     return () => clearTimeout(timer);
   }, []);
