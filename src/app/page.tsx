@@ -16,18 +16,18 @@ export default function Home() {
     if (code) {
       // 1. INFINITY BREAKER: Check if we've already tried this code
       const lastCode = sessionStorage.getItem('last_auth_code');
-      if (lastCode === code) {
-        console.warn("Auth loop detected and stopped.");
-        return;
-      }
+      if (lastCode === code) return;
       sessionStorage.setItem('last_auth_code', code);
 
-      // 2. THE GLOBAL SHREDDER: Wipe cookies to prevent 431
+      // 2. SURGICAL CLEANUP: Only clear cookies that cause bloat, NOT state keys
       document.cookie.split(";").forEach((c) => {
-        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        const name = c.split('=')[0].trim();
+        if (name.includes('access-token') || name.includes('refresh-token')) {
+          document.cookie = name + "=;expires=" + new Date(0).toUTCString() + ";path=/";
+        }
       });
 
-      // 3. FORCE REDIRECT to the callback
+      // 3. FORCE REDIRECT
       window.location.href = `/auth/callback?code=${code}`;
       return;
     }
