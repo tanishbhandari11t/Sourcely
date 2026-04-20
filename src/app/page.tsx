@@ -1,30 +1,46 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import GradientBarsBackground from "@/components/ui/gradient-bars-background";
 import Image from "next/image";
 import LoginPage from "@/components/ui/animated-characters-login-page";
+import { createClient } from "@/utils/supabase/client";
 
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+  const supabase = createClient();
 
   useEffect(() => {
-    // 1. Detect OAuth Code in the WRONG URL (Home instead of Callback)
-    const url = new URL(window.location.href);
-    const code = url.searchParams.get("code");
-    
-    if (code) {
-      // FORCE REDIRECT to the correct handling page to avoid 431 loops
-      window.location.href = `/auth/callback?code=${code}`;
-      return;
-    }
+    const checkAuthAndParams = async () => {
+      // 1. Detect OAuth Code in the WRONG URL (Home instead of Callback)
+      const url = new URL(window.location.href);
+      const code = url.searchParams.get("code");
+      
+      if (code) {
+        window.location.href = `/auth/callback?code=${code}`;
+        return;
+      }
 
-    const timer = setTimeout(() => {
-      setShowSplash(false);
-    }, 3000); // 3 seconds
+      // 2. Check if already logged in (Bypass splash and login)
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.replace("/dashboard");
+        return;
+      }
 
-    return () => clearTimeout(timer);
-  }, []);
+      // 3. Splash Timer
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    };
+
+    checkAuthAndParams();
+  }, [router, supabase]);
 
   if (showSplash) {
     return (
