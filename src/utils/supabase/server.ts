@@ -18,7 +18,7 @@ export const createClient = async () => {
               cookieStore.set(name, value, options)
             );
           } catch (error) {
-            // Handle server component cooke restriction
+            // Safe catch
           }
         },
       },

@@ -223,15 +223,13 @@ export default function LoginPage() {
         provider: 'google',
         options: { 
           redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          }
         }
       });
       if (error) throw error;
     } catch (err: any) {
-      alert("Google Auth Error: " + err.message);
+      setError(err.message || "OAuth failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 

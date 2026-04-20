@@ -1,46 +1,37 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import GradientBarsBackground from "@/components/ui/gradient-bars-background";
 import Image from "next/image";
 import LoginPage from "@/components/ui/animated-characters-login-page";
-import { createClient } from "@/utils/supabase/client";
 
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
-    const checkAuthAndParams = async () => {
-      // 1. Detect OAuth Code in the WRONG URL (Home instead of Callback)
-      const url = new URL(window.location.href);
-      const code = url.searchParams.get("code");
-      
-      if (code) {
-        window.location.href = `/auth/callback?code=${code}`;
-        return;
-      }
+    // 1. Detect OAuth Code in the WRONG URL (Home instead of Callback)
+    const url = new URL(window.location.href);
+    const code = url.searchParams.get("code");
+    
+    if (code) {
+      // THE GLOBAL SHREDDER: Wipe all cookies to kill 431 permanently
+      document.cookie.split(";").forEach((c) => {
+        document.cookie = c
+          .replace(/^ +/, "")
+          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      });
 
-      // 2. Check if already logged in (Bypass splash and login)
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        router.replace("/dashboard");
-        return;
-      }
+      // FORCE REDIRECT to the correct handling page
+      window.location.href = `/auth/callback?code=${code}`;
+      return;
+    }
 
-      // 3. Splash Timer
-      const timer = setTimeout(() => {
-        setShowSplash(false);
-      }, 2000);
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 2000);
 
-      return () => clearTimeout(timer);
-    };
-
-    checkAuthAndParams();
-  }, [router, supabase]);
+    return () => clearTimeout(timer);
+  }, []);
 
   if (showSplash) {
     return (
