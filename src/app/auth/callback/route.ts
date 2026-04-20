@@ -6,23 +6,24 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   const next = searchParams.get('next') ?? '/dashboard';
 
-  // FIX: THE NUCLEAR COOKIE PURGE
-  // We create a response and forcefully clear any stuck cookies that cause 431 errors
-  const response = NextResponse.redirect(`${origin}${next}`);
-
   if (code) {
     const supabase = await createClient();
     
     // Exchange the code for a session
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     
     if (error) {
       console.error('OAuth exchange error:', error.message);
-      return NextResponse.redirect(`${origin}/?error=OAuthExchangeFailed`);
+      // REVEAL THE TRUTH: Pass the actual error message into the URL for debugging
+      return NextResponse.redirect(`${origin}/?error=OAuthExchangeFailed&reason=${encodeURIComponent(error.message)}`);
+    }
+
+    if (!data.session) {
+       return NextResponse.redirect(`${origin}/?error=NoSessionFound`);
     }
 
     // Success! 
-    return response;
+    return NextResponse.redirect(`${origin}${next}`);
   }
 
   return NextResponse.redirect(`${origin}/?error=NoCodeProvided`);
