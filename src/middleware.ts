@@ -2,12 +2,26 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
+  const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
 
-  // FIX: IF AUTH CODE IS PRESENT, BYPASS MIDDLEWARE TO PREVENT 431 HEADER OVERLOAD
-  if (code) {
-    return NextResponse.next();
+  // FIX: THE 431 KILLER
+  // If we see a code, we MUST get the browser AWAY from the root page and away from old cookies.
+  if (code && request.nextUrl.pathname === '/') {
+    const redirectUrl = new URL('/auth/callback', origin);
+    redirectUrl.searchParams.set('code', code);
+    
+    // Redirect with a CLEAN RESPONSE (This tells the browser to drop the request and start a fresh one at the callback)
+    const response = NextResponse.redirect(redirectUrl);
+    
+    // Wipe any existing Supabase cookies that might be bloating the header
+    request.cookies.getAll().forEach(cookie => {
+      if (cookie.name.includes('sb-')) {
+        response.cookies.delete(cookie.name);
+      }
+    });
+
+    return response;
   }
 
   let response = NextResponse.next({

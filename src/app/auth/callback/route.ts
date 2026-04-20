@@ -6,9 +6,6 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   const next = searchParams.get('next') ?? '/dashboard';
 
-  // FIX: Clear any old cookies before starting a new exchange to prevent 431 Header Too Large
-  const response = NextResponse.next();
-
   if (code) {
     const supabase = await createClient();
     
@@ -17,15 +14,12 @@ export async function GET(request: Request) {
     
     if (error) {
       console.error('OAuth exchange error:', error.message);
-      // Redirect back home with a clear error
-      return NextResponse.redirect(`${origin}/?error=OAuthExchangeFailed&msg=${encodeURIComponent(error.message)}`);
+      return NextResponse.redirect(`${origin}/?error=OAuthExchangeFailed`);
     }
 
-    // Success! Redirect to dashboard with a clean state
-    const redirectUrl = new URL(next, origin);
-    return NextResponse.redirect(redirectUrl.toString());
+    // Success! Redirect to dashboard
+    return NextResponse.redirect(`${origin}${next}`);
   }
 
-  // No code found, probably an error from provider
   return NextResponse.redirect(`${origin}/?error=NoCodeProvided`);
 }
