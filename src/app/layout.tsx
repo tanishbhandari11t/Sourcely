@@ -20,6 +20,24 @@ import { WorkspaceProvider } from "@/context/workspace-context";
 export const metadata: Metadata = {
   title: "Sourcely AI | Developer Knowledge Base",
   description: "AI-powered developer wiki and chat assistant trained on your workspace data.",
+  openGraph: {
+    title: "Sourcely AI | Neural Knowledge Base",
+    description: "Convert scattered company knowledge into an intelligent AI wiki.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Sourcely AI Interface",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sourcely AI",
+    description: "AI-powered developer wiki and chat assistant.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({
