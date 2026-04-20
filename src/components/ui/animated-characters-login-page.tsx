@@ -325,7 +325,27 @@ export default function LoginPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="h-12 bg-[#111827] border-[#1F2937]" />
+              <div className="relative group">
+                <Input 
+                  id="password" 
+                  type={showPassword ? "text" : "password"} 
+                  placeholder="••••••••" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  onFocus={() => setIsTyping(true)}
+                  onBlur={() => setIsTyping(false)}
+                  className="h-12 bg-[#111827] border-[#1F2937] pr-12 transition-all focus:border-[#6366F1]/50" 
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  onMouseEnter={() => setIsPurplePeeking(true)}
+                  onMouseLeave={() => setIsPurplePeeking(false)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors"
+                >
+                  {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                </button>
+              </div>
             </div>
             {error && <div className="p-3 text-sm text-red-500 bg-red-500/10 rounded-lg">{error}</div>}
             <Button type="submit" className="w-full h-12 bg-[#6366F1] text-white" disabled={isLoading}>{isLoading ? "Signing in..." : "Continue"}</Button>
