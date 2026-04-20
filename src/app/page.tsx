@@ -14,20 +14,7 @@ export default function Home() {
     const code = url.searchParams.get("code");
     
     if (code) {
-      // 1. INFINITY BREAKER: Check if we've already tried this code
-      const lastCode = sessionStorage.getItem('last_auth_code');
-      if (lastCode === code) return;
-      sessionStorage.setItem('last_auth_code', code);
-
-      // 2. SURGICAL CLEANUP: Only clear cookies that cause bloat, NOT state keys
-      document.cookie.split(";").forEach((c) => {
-        const name = c.split('=')[0].trim();
-        if (name.includes('access-token') || name.includes('refresh-token')) {
-          document.cookie = name + "=;expires=" + new Date(0).toUTCString() + ";path=/";
-        }
-      });
-
-      // 3. FORCE REDIRECT
+      // Direct hand-off to the hardened server-side callback
       window.location.href = `/auth/callback?code=${code}`;
       return;
     }
