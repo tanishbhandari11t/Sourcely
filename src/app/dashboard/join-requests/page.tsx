@@ -31,9 +31,9 @@ export default function JoinRequestsPage() {
     }
   };
 
-  const handleReject = async (reqId: string) => {
+  const handleReject = async (req: any) => {
     try {
-      await rejectJoinRequest(reqId);
+      await rejectJoinRequest(req.id, req.workspace_id, req.user_id);
       fetchRequests();
     } catch (e) {
       alert("Error rejecting request");
@@ -101,7 +101,7 @@ export default function JoinRequestsPage() {
                     
                     <div className="flex items-center gap-4">
                        <button 
-                         onClick={() => handleReject(req.id)}
+                         onClick={() => handleReject(req)}
                          className="flex items-center gap-2 px-6 py-4 text-gray-400 hover:text-white hover:bg-red-500/10 rounded-2xl transition-all group/btn"
                        >
                           <X className="size-5 group-hover/btn:scale-125 transition-transform" />
