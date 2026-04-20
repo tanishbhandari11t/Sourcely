@@ -140,3 +140,34 @@ export async function rejectJoinRequest(requestId: string, workspaceId: string, 
 
   return { success: true };
 }
+
+/**
+ * 6. DELETE WORKSPACE (Nuclear Option)
+ */
+export async function deleteWorkspace(workspaceId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  // Verify Ownership
+  const { data: ws } = await supabase
+    .from('workspaces')
+    .select('owner_id')
+    .eq('id', workspaceId)
+    .single();
+
+  if (!ws || ws.owner_id !== user.id) {
+    throw new Error("Only the owner can delete this workspace.");
+  }
+
+  // Delete everything (Cascades automatically in DB)
+  const { error } = await supabase
+    .from('workspaces')
+    .delete()
+    .eq('id', workspaceId);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/dashboard");
+  return { success: true };
+}

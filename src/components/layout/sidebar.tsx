@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useWorkspaces } from "@/context/workspace-context";
+import { deleteWorkspace } from "@/lib/actions/workspace-actions";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
@@ -52,6 +53,8 @@ export function Sidebar() {
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [hasMounted, setHasMounted] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // FIX: Hydration Mismatch
   useEffect(() => {
@@ -94,6 +97,21 @@ export function Sidebar() {
     setIsActionLoading(false);
   };
 
+  const handleDeleteWorkspace = async () => {
+    if (!activeWorkspace || userRole !== 'Owner') return;
+    setIsDeleting(true);
+    try {
+      await deleteWorkspace(activeWorkspace.id);
+      setIsDeleteDialogOpen(false);
+      await refreshWorkspaces();
+      // Redirect will be handled by refresh if active workspace is gone
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (!hasMounted) return <div className={cn("bg-[#0B0F14] border-r border-[#1F2937]", collapsed ? "w-20" : "w-64")} />;
 
   return (
@@ -131,10 +149,18 @@ export function Sidebar() {
 
         <div className="p-4 border-t border-[#1F2937] bg-[#0B0F14]">
           {!collapsed && (
-            <div className="bg-[#111827] p-3 rounded-2xl mb-4 border border-transparent hover:border-[#1F2937] transition-all cursor-pointer">
+            <div className="bg-[#111827] p-3 rounded-2xl mb-4 border border-transparent hover:border-[#1F2937] transition-all cursor-pointer group relative">
                <div className="flex items-center gap-3">
                   <div className="size-10 shrink-0 rounded-full bg-gradient-to-tr from-[#6366F1] to-[#22C55E] flex items-center justify-center font-bold text-white shadow-lg">{currentUser?.email?.charAt(0).toUpperCase() || 'U'}</div>
                   <div className="flex-1 overflow-hidden"><p className="text-sm font-bold text-white truncate">{currentUser?.email?.split('@')[0] || 'User'}</p><p className="text-[10px] text-[#6366F1] font-bold uppercase tracking-widest leading-none">{userRole}</p></div>
+                  {userRole === 'Owner' && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setIsDeleteDialogOpen(true); }}
+                      className="size-8 bg-red-500/10 text-red-500 rounded-lg flex items-center justify-center hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  )}
                </div>
           </div>
           )}
@@ -172,6 +198,29 @@ export function Sidebar() {
                     </div>
                  ))}
                  {pendingRequests.length === 0 && <p className="text-center text-gray-500 font-bold uppercase text-[10px] tracking-widest py-10 opacity-30">No requests pending</p>}
+              </div>
+           </div>
+        </div>
+      )}
+
+      {isDeleteDialogOpen && (
+        <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4">
+           <div className="absolute inset-0 bg-[#0B0F14]/95 backdrop-blur-xl" onClick={() => setIsDeleteDialogOpen(false)} />
+           <div className="relative bg-[#111827] border border-red-500/30 rounded-[40px] p-10 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
+              <div className="size-20 bg-red-500/10 rounded-3xl flex items-center justify-center text-red-500 mx-auto mb-6">
+                 <Trash2 className="size-10" />
+              </div>
+              <div className="text-center space-y-4 mb-8">
+                 <h3 className="text-2xl font-black italic uppercase text-white tracking-tighter">Nuclear Action</h3>
+                 <p className="text-gray-500 text-sm">
+                    Warning: You are about to delete <span className="text-white font-bold">{activeWorkspace?.name}</span>. This will permanently wipe all sources, chat history, and generated wikis. This action is irreversible.
+                 </p>
+              </div>
+              <div className="flex flex-col gap-3">
+                 <Button onClick={handleDeleteWorkspace} disabled={isDeleting} className="w-full h-14 bg-red-500 hover:bg-red-600 text-white font-black uppercase italic tracking-widest shadow-glow-red rounded-2xl">
+                    {isDeleting ? "Wiping Brain..." : "Confirm Purge"}
+                 </Button>
+                 <button onClick={() => setIsDeleteDialogOpen(false)} className="w-full py-4 text-xs font-bold text-gray-500 uppercase tracking-widest hover:text-white transition-colors">Abort Mission</button>
               </div>
            </div>
         </div>
