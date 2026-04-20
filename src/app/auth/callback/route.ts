@@ -13,18 +13,20 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
     
     if (error) {
-      console.error('OAuth exchange error:', error.message);
-      // REVEAL THE TRUTH: Pass the actual error message into the URL for debugging
-      return NextResponse.redirect(`${origin}/?error=OAuthExchangeFailed&reason=${encodeURIComponent(error.message)}`);
+      // LOG IT LOCALLY (Safety first)
+      console.error('CRITICAL AUTH ERROR:', error.message);
+      
+      // REDIRECT WITH A TINY CODE (To prevent 431 loops)
+      return NextResponse.redirect(`${origin}/?error=auth_fail`);
     }
 
     if (!data.session) {
-       return NextResponse.redirect(`${origin}/?error=NoSessionFound`);
+       return NextResponse.redirect(`${origin}/?error=no_session`);
     }
 
     // Success! 
     return NextResponse.redirect(`${origin}${next}`);
   }
 
-  return NextResponse.redirect(`${origin}/?error=NoCodeProvided`);
+  return NextResponse.redirect(`${origin}/?error=no_code`);
 }
