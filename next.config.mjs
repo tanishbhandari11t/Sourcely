@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// Deployment Trigger: v1.0.1 - Vercel Stability Sync
 const nextConfig = {
     eslint: {
         // Warning: This allows production builds to successfully complete even if
