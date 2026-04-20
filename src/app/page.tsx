@@ -14,14 +14,20 @@ export default function Home() {
     const code = url.searchParams.get("code");
     
     if (code) {
-      // THE GLOBAL SHREDDER: Wipe all cookies to kill 431 permanently
+      // 1. INFINITY BREAKER: Check if we've already tried this code
+      const lastCode = sessionStorage.getItem('last_auth_code');
+      if (lastCode === code) {
+        console.warn("Auth loop detected and stopped.");
+        return;
+      }
+      sessionStorage.setItem('last_auth_code', code);
+
+      // 2. THE GLOBAL SHREDDER: Wipe cookies to prevent 431
       document.cookie.split(";").forEach((c) => {
-        document.cookie = c
-          .replace(/^ +/, "")
-          .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
       });
 
-      // FORCE REDIRECT to the correct handling page
+      // 3. FORCE REDIRECT to the callback
       window.location.href = `/auth/callback?code=${code}`;
       return;
     }
